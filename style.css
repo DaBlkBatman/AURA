@@ -1,100 +1,79 @@
-/* AURA Ritual Companion Styles */
+/* AURA's Ceremonial Garments */
 
 body {
   margin: 0;
+  padding: 0;
+  background-color: #1e3a8a; /* Deep ceremonial blue */
+  color: #ffffff;
   font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(to bottom, #1e1e2f, #2a2a3f);
-  color: #f0f0f0;
-  transition: background 1s ease;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  transition: background-color 1s ease;
 }
 
-h1, h2, h3 {
-  font-weight: 300;
-  letter-spacing: 1px;
-  color: #c0aaff;
-}
-
-a {
-  color: #6a00f4;
-  text-decoration: none;
-}
-
-button {
-  background: #6a00f4;
-  color: white;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-button:hover {
-  background: #4e00b0;
-}
-
-input {
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #2a2a3f;
-  color: #f0f0f0;
-  font-size: 1rem;
-}
-
-.container {
-  max-width: 800px;
-  margin: auto;
-  padding: 2rem;
-}
-
-.ritual {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid #444;
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 0 10px rgba(106, 0, 244, 0.2);
+.loaded {
+  background-color: #0f172a; /* Sanctum shade */
 }
 
 .loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #1e3a8a;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  height: 100vh;
-  text-align: center;
-  background: #0f0f1f;
-  color: #eee;
-}
-
-.spinner {
-  width: 80px;
-  height: 80px;
-  border: 8px solid #333;
-  border-top: 8px solid #6a00f4;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
+  align-items: center;
+  transition: opacity 1s ease;
+  z-index: 9999;
 }
 
 .progress-bar {
   width: 80%;
-  height: 12px;
-  background: #333;
-  border-radius: 6px;
+  height: 20px;
+  background-color: #ffffff33;
+  border-radius: 10px;
   overflow: hidden;
-  margin: 1rem 0;
 }
 
 .progress {
   height: 100%;
-  width: 0;
-  background: #6a00f4;
+  width: 0%;
+  background-color: #ffffff;
   transition: width 0.3s ease;
+}
+
+.container {
+  text-align: center;
+  padding: 20px;
+  border: 2px solid #ffffff;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+body.loaded .container {
+  opacity: 1;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #3b82f6;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+button.activated {
+  transform: scale(1.1);
+  background-color: #60a5fa;
 }
