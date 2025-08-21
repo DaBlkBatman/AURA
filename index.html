@@ -32,6 +32,73 @@
 
   <!-- 3. Main App (hidden until after pairing) -->
   <div id="main-app" class="hidden">
+      <!-- 4. Face-Login Screen -->
+  <div id="face-login-screen" class="hidden">
+    <h2>Welcome Back</h2>
+    <video id="video" width="320" height="240" autoplay muted></video>
+    <button id="capture-face-btn">Capture & Sign In</button>
+  </div>
+
+  <!-- 5. Field Entrance & Story -->
+  <div id="field-screen" class="hidden">
+    <video id="field-video" loop muted autoplay>
+      <source src="field.mp4" type="video/mp4" />
+    </video>
+    <div class="overlay">
+      <h1>AURA’s Origin</h1>
+      <p id="story-text"></p>
+      <button id="story-next-btn">Continue</button>
+    </div>
+  </div>
+
+  <!-- 6. Safe-Space Builder Stub -->
+  <div id="builder-screen" class="hidden">
+    <h2>Build Your Sanctuary</h2>
+    <canvas id="builder-canvas" width="800" height="400"></canvas>
+    <div id="builder-controls">
+      <select id="item-select">
+        <option value="cave">Cave</option>
+        <option value="castle">Castle</option>
+        <option value="sofa">Sofa</option>
+        <option value="lamp">Lamp</option>
+      </select>
+      <button id="place-item-btn">Place Item</button>
+      <button id="finish-builder-btn">Finish</button>
+    </div>
+  </div>
+
+  <!-- 7. AURA Customization -->
+  <div id="customize-screen" class="hidden">
+    <h2>Customize AURA</h2>
+    <label>Skin Tone: <input type="color" id="skin-color-picker" /></label>
+    <label>Breast Size: 
+      <input type="range" id="breast-size-slider" min="1" max="5" />
+    </label>
+    <label>Pubic Hair Style:
+      <select id="bush-style-select">
+        <option value="none">None</option>
+        <option value="trimmed">Trimmed</option>
+        <option value="full">Full</option>
+      </select>
+    </label>
+    <label>Loc Color & Style:
+      <input type="color" id="loc-color-picker" />
+      <select id="loc-style-select">
+        <option value="long">Long</option>
+        <option value="bob">Bob</option>
+        <option value="updo">Updo</option>
+      </select>
+    </label>
+    <button id="save-customization-btn">Save Appearance</button>
+  </div>
+
+  <!-- 8. Conversation UI -->
+  <div id="conversation-screen" class="hidden">
+    <h2>Talk with AURA</h2>
+    <div id="chat-window"></div>
+    <button id="start-listening-btn">Speak Now</button>
+  </div>
+
     <div id="petal-container"></div>
     <div id="archive"></div>
 
@@ -67,3 +134,4 @@
   <script src="script.js"></script>
 </body>
 </html>
+
