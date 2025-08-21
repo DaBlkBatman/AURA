@@ -1,79 +1,121 @@
-/* AURA's Ceremonial Garments */
+/* Utility */
+.hidden { display: none !important; }
 
-body {
-  margin: 0;
-  padding: 0;
-  background-color: #1e3a8a; /* Deep ceremonial blue */
-  color: #ffffff;
+/* Global */
+body, html {
+  margin: 0; padding: 0;
+  width: 100%; height: 100%;
   font-family: 'Segoe UI', sans-serif;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  transition: background-color 1s ease;
-}
-
-.loaded {
-  background-color: #0f172a; /* Sanctum shade */
-}
-
-.loading-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #1e3a8a;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: opacity 1s ease;
-  z-index: 9999;
-}
-
-.progress-bar {
-  width: 80%;
-  height: 20px;
-  background-color: #ffffff33;
-  border-radius: 10px;
+  background: linear-gradient(to bottom, #e0d4f7, #fef6ff);
   overflow: hidden;
 }
 
+/* Loading Screen */
+#loading-screen {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: #1e3a8a; color: #fff;
+  z-index: 100;
+}
+.progress-bar {
+  width: 60%; height: 12px;
+  background: #ffffff33; border-radius: 6px;
+  overflow: hidden; margin-top: 1rem;
+}
 .progress {
-  height: 100%;
-  width: 0%;
-  background-color: #ffffff;
-  transition: width 0.3s ease;
+  height: 100%; width: 0;
+  background: #fff; transition: width 0.3s ease;
 }
 
-.container {
-  text-align: center;
-  padding: 20px;
-  border: 2px solid #ffffff;
-  border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.1);
-  opacity: 0;
-  transition: opacity 1s ease;
+/* Pairing Screen */
+#guardian-ring {
+  width: 180px; height: 180px;
+  border: 4px dashed #a88bff;
+  border-radius: 50%;
+  animation: spinRing 10s linear infinite;
+  margin: 20px auto;
+}
+@keyframes spinRing {
+  to { transform: rotate(360deg); }
 }
 
-body.loaded .container {
-  opacity: 1;
+#aura-face {
+  width: 120px; height: 120px;
+  margin: 0 auto 20px;
+  background-image: url('calm.svg');
+  background-size: cover;
+  border-radius: 50%;
+}
+#aura-face[data-expression="joy"] {
+  background-image: url('joy.svg');
+}
+#aura-face[data-expression="sad"] {
+  background-image: url('sad.svg');
 }
 
-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: #3b82f6;
+#pair-btn {
+  padding: 12px 24px;
+  font-size: 18px;
+  background: #d9b3ff;
   border: none;
   border-radius: 8px;
-  color: white;
-  font-size: 1rem;
   cursor: pointer;
-  transition: transform 0.2s ease;
 }
 
-button.activated {
-  transform: scale(1.1);
-  background-color: #60a5fa;
+/* Main App Containers */
+#main-app {
+  position: absolute; inset: 0;
+  padding: 1rem; overflow-y: auto;
+}
+
+/* Animated Petals */
+.petal {
+  position: absolute;
+  width: 20px; height: 20px;
+  background: radial-gradient(circle, #ffccff, #cc99ff);
+  border-radius: 50%;
+  animation: petalFloat 3s ease-out forwards;
+}
+@keyframes petalFloat {
+  to { transform: translateY(-120px); opacity: 0; }
+}
+
+/* Legacy Archive */
+#archive {
+  position: fixed; bottom: 10px; left: 10px;
+  background: #fff; padding: 10px;
+  border-radius: 8px;
+  max-height: 150px; overflow-y: auto;
+  font-size: 14px;
+}
+
+/* Appearance Customization */
+#image-customization {
+  margin: 1.5rem 0;
+}
+#image-preview-container img {
+  width: 100px; margin: 0.5rem;
+  border-radius: 8px; object-fit: cover;
+}
+
+/* Skill Teaching & Financial Ritual */
+section {
+  background: rgba(255,255,255,0.8);
+  margin: 1rem auto;
+  padding: 1rem;
+  border-radius: 8px;
+  max-width: 600px;
+}
+.lesson-step {
+  background: #f3e8ff; margin: 0.5rem 0; padding: 0.5rem;
+  border-radius: 4px;
+}
+.resource-item {
+  display: block; margin: 0.3rem 0;
+  color: #4a2c83; text-decoration: none;
+}
+#ritual-summary {
+  background: #e8f7ff; margin-top: 1rem; padding: 0.5rem;
+  border-radius: 4px;
 }
