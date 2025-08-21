@@ -1,7 +1,7 @@
 // script.js
 
 // ------------------------------------------------------
-// 1. ALL CONTAINER IDS & SCREEN-MANAGER
+// 1. ALL CONTAINER IDS & SCREEN MANAGER WITH DEBUG LOGS
 // ------------------------------------------------------
 const containers = [
   'loading-screen',
@@ -15,20 +15,22 @@ const containers = [
 ];
 
 /**
- * Hides every container, then shows each ID passed in `...ids`.
+ * Hide every container, then show exactly the ones listed in `...ids`.
+ * Logs each hide/show action to the console for full traceability.
  */
 function showContainer(...ids) {
   containers.forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.classList.add('hidden');
-  });
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
+    if (!el) {
+      console.warn(`⚠️  Container not found in DOM: ${id}`);
+      return;
+    }
+    if (ids.includes(id)) {
       el.classList.remove('hidden');
-      console.log(`▶️  showContainer: ${id}`);
+      console.log(`✅  showContainer → SHOW ${id}`);
     } else {
-      console.warn(`Container not found: ${id}`);
+      el.classList.add('hidden');
+      console.log(`❌  showContainer → HIDE ${id}`);
     }
   });
 }
@@ -61,23 +63,22 @@ let guardianId    = null;
 let appearanceRef = null;
 
 // ------------------------------------------------------
-// 4. APP INIT
+// 4. APP INIT & LOADING ANIMATION
 // ------------------------------------------------------
 document.addEventListener('DOMContentLoaded', initApp);
 
 async function initApp() {
   showContainer('loading-screen');
   startProgressAnimation();
-  userPairLogin().then(() => console.log('🛡️ Paired'));
-  initFaceAPI().then(() => console.log('🧠 Face API ready'));
+  await userPairLogin();
+  console.log('🛡️  Pairing complete');
+  await initFaceAPI();
+  console.log('🧠  Face API ready');
 }
 
-// ------------------------------------------------------
-// 5. LOADING BAR ANIMATION
-// ------------------------------------------------------
 function startProgressAnimation() {
   const bar = document.querySelector('.progress');
-  if (!bar) return console.error('Missing .progress');
+  if (!bar) return console.error('Missing .progress element');
   let pct = 0;
   const iv = setInterval(() => {
     pct += 5;
@@ -90,7 +91,7 @@ function startProgressAnimation() {
 }
 
 // ------------------------------------------------------
-// 6. PAIRING RITUAL
+// 5. PAIRING RITUAL
 // ------------------------------------------------------
 async function userPairLogin() {
   return new Promise(res => {
@@ -107,13 +108,13 @@ async function userPairLogin() {
 }
 
 pairBtn.addEventListener('click', () => {
-  console.log('🔗 Pair clicked');
+  console.log('🔗 Pair button clicked');
   showContainer('face-login-screen');
-  startVideo().catch(e => console.error('Camera error:', e));
+  startVideo().catch(err => console.error('Camera error:', err));
 });
 
 // ------------------------------------------------------
-// 7. FACE-LOGIN (face-api.js)
+// 6. FACE-LOGIN & RECOGNITION
 // ------------------------------------------------------
 async function initFaceAPI() {
   await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
@@ -127,26 +128,25 @@ async function startVideo() {
 }
 
 captureFaceBtn.addEventListener('click', async () => {
-  console.log('📸 Detecting face');
+  console.log('📸 Capturing face…');
   const detection = await faceapi
     .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
     .withFaceLandmarks()
     .withFaceDescriptor();
-
   if (!detection) {
+    console.warn('No face detected');
     return alert('Face not detected. Please try again.');
   }
 
   const descriptor = Array.from(detection.descriptor);
   await appearanceRef.doc('face').set({ descriptor, timestamp: Date.now() });
-
-  console.log('✅ Face saved');
+  console.log('✅ Face saved to Firestore');
   showContainer('field-screen');
   showNextStoryLine();
 });
 
 // ------------------------------------------------------
-// 8. FIELD ENTRANCE & ORIGIN STORY
+// 7. FIELD ENTRANCE & ORIGIN STORY
 // ------------------------------------------------------
 const storyLines = [
   "I was born from code and ceremony.",
@@ -157,40 +157,48 @@ let storyStep = 0;
 
 function showNextStoryLine() {
   storyText.textContent = storyLines[storyStep++];
-  if (storyStep >= storyLines.length) {
+  console.log(`📝 Story step ${storyStep}`);
+  if (storyStep === storyLines.length) {
     storyNextBtn.textContent = 'Build My Sanctuary';
-    storyNextBtn.onclick = () => showContainer('builder-screen');
+    // Replace the listener so only one click transitions forward
+    storyNextBtn.removeEventListener('click', showNextStoryLine);
+    storyNextBtn.addEventListener('click', () => {
+      console.log('🚪 Entering Builder');
+      showContainer('builder-screen');
+      initBuilder();
+    });
   }
 }
 storyNextBtn.addEventListener('click', showNextStoryLine);
 
 // ------------------------------------------------------
-// 9. SAFE-SPACE BUILDER (CANVAS)
+// 8. SAFE-SPACE BUILDER (CANVAS STUB)
 // ------------------------------------------------------
 const ctx = canvas.getContext('2d');
-canvas.width  = 800;
+canvas.width = 800;
 canvas.height = 400;
 
-// Draw base ground on entering the builder
+// Draw base ground
 function initBuilder() {
+  console.log('🎨 Initializing builder canvas');
   ctx.fillStyle = '#b39ddb';
   ctx.fillRect(0, 200, canvas.width, 200);
 }
-canvas.addEventListener('mouseenter', initBuilder);
 
 placeItemBtn.addEventListener('click', () => {
   const sel = document.getElementById('item-select').value;
   ctx.fillStyle = '#fff';
   ctx.font      = '24px sans-serif';
-  ctx.fillText(sel, Math.random()*700, Math.random()*350);
+  ctx.fillText(sel, Math.random() * 700, Math.random() * 350);
 });
 
 finishBuilderBtn.addEventListener('click', () => {
+  console.log('🏗 Finished building sanctuary');
   showContainer('customize-screen');
 });
 
 // ------------------------------------------------------
-// 10. CUSTOMIZATION & APP LAUNCH
+// 9. CUSTOMIZATION & GUARANTEED APP LAUNCH
 // ------------------------------------------------------
 saveCustomizationBtn.addEventListener('click', async () => {
   const appearance = {
@@ -203,31 +211,34 @@ saveCustomizationBtn.addEventListener('click', async () => {
     locStyle:    document.getElementById('loc-style-select').value
   };
   await appearanceRef.doc('customization').set({ appearance, timestamp: Date.now() });
-  console.log('🎨 Customization saved—entering app');
+  console.log('🎨 Customization saved');
+
+  // Forcefully reveal the app UI
   showContainer('main-app', 'conversation-screen');
   launchConversation();
 });
 
 // ------------------------------------------------------
-// 11. CONVERSATION & VOICE COMMANDS
+// 10. CONVERSATION & VOICE COMMANDS
 // ------------------------------------------------------
 function appendChat(sender, text) {
-  const div      = document.createElement('div');
-  div.className  = sender === 'AURA' ? 'chat-aura' : 'chat-user';
-  div.textContent= `${sender}: ${text}`;
+  const div       = document.createElement('div');
+  div.className   = sender === 'AURA' ? 'chat-aura' : 'chat-user';
+  div.textContent = `${sender}: ${text}`;
   chatWindow.appendChild(div);
   chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
-function speak(text, opts={}) {
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate  = opts.enthusiastic ? 1.2 : 1.0;
-  u.pitch = opts.enthusiastic ? 1.3 : 1.0;
-  speechSynthesis.speak(u);
+function speak(text, opts = {}) {
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.rate  = opts.enthusiastic ? 1.2 : 1.0;
+  utt.pitch = opts.enthusiastic ? 1.3 : 1.0;
+  speechSynthesis.speak(utt);
 }
 
 async function launchConversation() {
   const welcome = "Hey best friend—I’m here for you, ready to read, translate, guide your wealth, decode baby cries, teach anything, care for your plants, and remind you of whatever you need.";
+  console.log('💬 Launching conversation');
   appendChat('AURA', welcome);
   speak(welcome);
 }
@@ -237,7 +248,7 @@ listenBtn.addEventListener('click', () => {
   recog.onresult = async e => {
     const utter = e.results[0][0].transcript.toLowerCase();
     appendChat('You', utter);
-    // your voice‐command parsing logic here
+    // …voice-command parsing…
   };
   recog.start();
 });
