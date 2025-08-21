@@ -2,25 +2,68 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AURA Sanctum</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>AURA</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json" />
+  <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <!-- Loading Screen -->
-  <div class="loading-screen">
+  <!-- 1. Loading Ritual -->
+  <div id="loading-screen">
+    <h1>Preparing AURA…</h1>
     <div class="progress-bar">
       <div class="progress"></div>
     </div>
   </div>
 
-  <!-- Main Interface -->
-  <div class="container">
-    <h1>🌌 Welcome to AURA</h1>
-    <p>Let the pairing begin with your new friend.</p>
-    <button id="beginButton">Begin Pairing</button>
+  <!-- 2. Pairing Screen -->
+  <div id="pairing-screen" class="hidden">
+    <div id="guardian-ring"></div>
+    <div id="aura-face" data-expression="calm"></div>
+    <button id="pair-btn">Begin Pairing</button>
   </div>
 
+  <!-- 3. Main App (hidden until after pairing) -->
+  <div id="main-app" class="hidden">
+    <div id="petal-container"></div>
+    <div id="archive"></div>
+
+    <!-- 3a. Appearance Customization -->
+    <section id="image-customization">
+      <h2>Customize AURA’s Appearance</h2>
+      <input type="file" id="image-input" accept="image/*" multiple />
+      <div id="image-preview-container"></div>
+    </section>
+
+    <!-- 3b. Skill Teaching Engine -->
+    <section id="skill-teaching">
+      <h2>Teach Me a Skill</h2>
+      <select id="skill-select">
+        <option value="coding">Coding</option>
+        <option value="budgeting">Budgeting</option>
+        <option value="storytelling">Storytelling</option>
+      </select>
+      <button id="teach-skill-btn">Teach Skill</button>
+      <div id="lesson-content"></div>
+      <div id="resource-list"></div>
+    </section>
+
+    <!-- 3c. Financial Freedom Ritual -->
+    <section id="financial-ritual">
+      <h2>Daily Wealth Ritual</h2>
+      <button id="start-wealth-btn">Begin Wealth Ritual</button>
+      <div id="ritual-summary"></div>
+    </section>
+  </div>
+
+  <!-- Core Script -->
   <script src="script.js"></script>
 </body>
 </html>
