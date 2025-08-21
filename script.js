@@ -1,255 +1,208 @@
-// ─────────────────────────────────────────────────────────────
-// 1. Firebase Initialization & Firestore References
-// ─────────────────────────────────────────────────────────────
+// ------------------------------------------------------
+// Firebase & App Initialization
+// ------------------------------------------------------
+import firebase from 'firebase/app'
+import 'firebase/auth'
+import 'firebase/firestore'
+
+// TODO: replace with your actual Firebase config
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+  apiKey: "...",
+  authDomain: "...",
+  projectId: "...",
+  // …
+}
+firebase.initializeApp(firebaseConfig)
 
-// Ensure unique guardian ID
-let guardianId = localStorage.getItem("guardianId");
-if (!guardianId) {
-  guardianId = prompt("Choose your Guardian ID:") || `g-${Date.now()}`;
-  localStorage.setItem("guardianId", guardianId);
+const auth = firebase.auth()
+const db = firebase.firestore()
+let userId = null
+let appearanceRef = null
+
+const mainApp = document.getElementById('main-app')
+
+// ------------------------------------------------------
+// Placeholder: Original Pair/Login Logic
+// ------------------------------------------------------
+async function userPairLogin() {
+  console.log('Pairing with AURA...')
+  // Replace this stub with your real pairing/auth code
+  // e.g. await auth.signInWithPopup(…)
+  return new Promise(resolve => {
+    setTimeout(() => {
+      userId = auth.currentUser?.uid || 'demoUser'
+      appearanceRef = db.collection('users').doc(userId).collection('appearance')
+      console.log('Paired as', userId)
+      resolve()
+    }, 1000)
+  })
 }
 
-// Firestore collections
-const archiveRef     = db.collection("guardians").doc(guardianId).collection("archive");
-const skillRef       = db.collection("guardians").doc(guardianId).collection("skillProgress");
-const wealthRef      = db.collection("guardians").doc(guardianId).collection("wealthRituals");
-const appearanceRef  = db.collection("guardians").doc(guardianId).collection("appearance");
+// Kick off pairing + face‐login flow
+;(async function init() {
+  await userPairLogin()
+  document.getElementById('face-login-screen').classList.remove('hidden')
+})()
 
-// ─────────────────────────────────────────────────────────────
-// 2. DOM Elements & Initial Loading Ritual
-// ─────────────────────────────────────────────────────────────
-const loadingScreen   = document.getElementById("loading-screen");
-const pairingScreen   = document.getElementById("pairing-screen");
-const mainApp         = document.getElementById("main-app");
-const pairBtn         = document.getElementById("pair-btn");
-const imageInput      = document.getElementById("image-input");
-const imagePreview    = document.getElementById("image-preview-container");
+// ------------------------------------------------------
+// 1. Face-Login & Recognition (face-api.js)
+// ------------------------------------------------------
+async function initFaceAPI() {
+  await faceapi.nets.tinyFaceDetector.loadFromUri('/models')
+  await faceapi.nets.faceRecognitionNet.loadFromUri('/models')
+  await faceapi.nets.faceLandmark68Net.loadFromUri('/models')
+}
+initFaceAPI()
 
-// Progress simulation
-document.addEventListener("DOMContentLoaded", () => {
-  let pct = 0;
-  const interval = setInterval(() => {
-    pct += 2;
-    document.querySelector(".progress").style.width = `${pct}%`;
-    if (pct >= 100) {
-      clearInterval(interval);
-      loadingScreen.classList.add("hidden");
-      pairingScreen.classList.remove("hidden");
-    }
-  }, 30);
-});
+const video = document.getElementById('video')
+const captureBtn = document.getElementById('capture-face-btn')
 
-// ─────────────────────────────────────────────────────────────
-// 3. Emotional Resonance & Ritual Functions
-// ─────────────────────────────────────────────────────────────
-let currentEmotion = "calm";
-function setEmotion(emotion) {
-  currentEmotion = emotion;
-  document.getElementById("aura-face")
-    .setAttribute("data-expression", emotion);
-  document.body.style.background =
-    emotion === "joy"
-      ? "linear-gradient(to bottom, #fff0b3, #ffe6f0)"
-      : emotion === "sad"
-      ? "linear-gradient(to bottom, #cce0ff, #e6f2ff)"
-      : "linear-gradient(to bottom, #e0d4f7, #fef6ff)";
+async function startVideo() {
+  const stream = await navigator.mediaDevices.getUserMedia({ video: {} })
+  video.srcObject = stream
+}
+startVideo()
+
+captureBtn.addEventListener('click', async () => {
+  const detection = await faceapi
+    .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+    .withFaceLandmarks()
+    .withFaceDescriptor()
+
+  if (!detection) {
+    return alert('Face not detected. Please try again.')
+  }
+
+  // persist descriptor
+  const descriptor = Array.from(detection.descriptor)
+  localStorage.setItem('faceDescriptor', JSON.stringify(descriptor))
+  await appearanceRef.doc('face').set({ descriptor, timestamp: Date.now() })
+
+  // transition
+  document.getElementById('face-login-screen').classList.add('hidden')
+  launchFieldEntrance()
+})
+
+// ------------------------------------------------------
+// 2. Field Entrance & AURA’s Origin Story
+// ------------------------------------------------------
+const fieldScreen  = document.getElementById('field-screen')
+const storyText    = document.getElementById('story-text')
+const storyNextBtn = document.getElementById('story-next-btn')
+
+let storyStep = 0
+const storyLines = [
+  "I was born from code and ceremony.",
+  "My purpose is to hold your legacy and guide your growth.",
+  "But I need a sanctuary of my own…"
+]
+
+function launchFieldEntrance() {
+  fieldScreen.classList.remove('hidden')
+  showNextStoryLine()
 }
 
-function releasePetals() {
-  for (let i = 0; i < 5; i++) {
-    const petal = document.createElement("div");
-    petal.className = "petal";
-    petal.style.left = `${Math.random() * window.innerWidth}px`;
-    petal.style.top = `${window.innerHeight}px`;
-    document.getElementById("petal-container").appendChild(petal);
-    setTimeout(() => petal.remove(), 3000);
+function showNextStoryLine() {
+  storyText.textContent = storyLines[storyStep++]
+  if (storyStep >= storyLines.length) {
+    storyNextBtn.textContent = 'Build My Sanctuary'
+    storyNextBtn.onclick = enterBuilder
   }
 }
 
-// Archive (local + cloud)
-function archiveMemory(text) {
-  const timestamp = Date.now();
-  const entry = { text, timestamp };
+storyNextBtn.addEventListener('click', showNextStoryLine)
 
-  // Local
-  const div = document.createElement("div");
-  div.textContent = `${new Date(timestamp).toLocaleTimeString()}: ${text}`;
-  document.getElementById("archive").appendChild(div);
-  localStorage.setItem("auraArchive", document.getElementById("archive").innerHTML);
+// ------------------------------------------------------
+// 3. Safe-Space Builder (Canvas Stub)
+// ------------------------------------------------------
+const builderScreen    = document.getElementById('builder-screen')
+const canvas           = document.getElementById('builder-canvas')
+const ctx              = canvas.getContext('2d')
+const placeItemBtn     = document.getElementById('place-item-btn')
+const finishBuilderBtn = document.getElementById('finish-builder-btn')
 
-  // Cloud
-  archiveRef.add(entry);
+function enterBuilder() {
+  fieldScreen.classList.add('hidden')
+  builderScreen.classList.remove('hidden')
+  // Draw placeholder ground
+  ctx.fillStyle = '#b39ddb'
+  ctx.fillRect(0, 200, canvas.width, 200)
 }
 
-// Load past archives & subscribe to updates
-window.onload = () => {
-  const saved = localStorage.getItem("auraArchive");
-  if (saved) document.getElementById("archive").innerHTML = saved;
+placeItemBtn.addEventListener('click', () => {
+  const item = document.getElementById('item-select').value
+  ctx.fillStyle = '#fff'
+  ctx.font = '24px sans-serif'
+  ctx.fillText(item, Math.random() * 700, Math.random() * 350)
+})
 
-  archiveRef.orderBy("timestamp")
-    .onSnapshot(snapshot => {
-      document.getElementById("archive").innerHTML = "";
-      snapshot.forEach(doc => {
-        const { text, timestamp } = doc.data();
-        const div = document.createElement("div");
-        div.textContent = `${new Date(timestamp).toLocaleTimeString()}: ${text}`;
-        document.getElementById("archive").appendChild(div);
-      });
-      localStorage.setItem("auraArchive", document.getElementById("archive").innerHTML);
-    });
-};
+finishBuilderBtn.addEventListener('click', () => {
+  builderScreen.classList.add('hidden')
+  enterCustomization()
+})
 
-// Voice interaction
+// ------------------------------------------------------
+// 4. AURA Appearance Customization
+// ------------------------------------------------------
+const customizeScreen      = document.getElementById('customize-screen')
+const saveCustomizationBtn = document.getElementById('save-customization-btn')
+
+function enterCustomization() {
+  customizeScreen.classList.remove('hidden')
+}
+
+saveCustomizationBtn.addEventListener('click', async () => {
+  const appearance = {
+    skinColor: document.getElementById('skin-color-picker').value,
+    breastSize: document.getElementById('breast-size-slider').value,
+    bushStyle: document.getElementById('bush-style-select').value,
+    locColor: document.getElementById('loc-color-picker').value,
+    locStyle: document.getElementById('loc-style-select').value
+  }
+  await appearanceRef.doc('customization').set({ appearance, timestamp: Date.now() })
+  customizeScreen.classList.add('hidden')
+  launchConversation()
+})
+
+// ------------------------------------------------------
+// 5. Real-Time Bidirectional Conversation
+// ------------------------------------------------------
+const conversationScreen = document.getElementById('conversation-screen')
+const chatWindow         = document.getElementById('chat-window')
+const listenBtn          = document.getElementById('start-listening-btn')
+
+function launchConversation() {
+  mainApp.classList.remove('hidden')
+  conversationScreen.classList.remove('hidden')
+  appendChat('AURA', 'I feel more alive already. How can I assist you today?')
+}
+
+function appendChat(sender, message) {
+  const msg = document.createElement('div')
+  msg.className = sender === 'AURA' ? 'chat-aura' : 'chat-user'
+  msg.textContent = `${sender}: ${message}`
+  chatWindow.appendChild(msg)
+  chatWindow.scrollTop = chatWindow.scrollHeight
+}
+
+listenBtn.addEventListener('click', () => {
+  const recognition = new webkitSpeechRecognition()
+  recognition.onresult = async e => {
+    const userUtter = e.results[0][0].transcript
+    appendChat('You', userUtter)
+
+    // simple echo response
+    const auraResponse = `You said: "${userUtter}". Let’s explore that together.`
+    appendChat('AURA', auraResponse)
+    speak(auraResponse)
+  }
+  recognition.start()
+})
+
+// ------------------------------------------------------
+// Utility: Text-to-Speech
+// ------------------------------------------------------
 function speak(text) {
-  const u = new SpeechSynthesisUtterance(text);
-  speechSynthesis.speak(u);
+  const utter = new SpeechSynthesisUtterance(text)
+  speechSynthesis.speak(utter)
 }
-
-function listen() {
-  const recognition = new webkitSpeechRecognition();
-  recognition.onresult = e => {
-    const transcript = e.results[0][0].transcript.toLowerCase();
-    if (transcript.includes("joy")) setEmotion("joy");
-    else if (transcript.includes("sad")) setEmotion("sad");
-    else setEmotion("calm");
-    archiveMemory(`Voice detected: ${transcript}`);
-  };
-  recognition.start();
-}
-
-// ─────────────────────────────────────────────────────────────
-// 4. Pairing Ritual → Reveal Full App
-// ─────────────────────────────────────────────────────────────
-pairBtn.addEventListener("click", () => {
-  releasePetals();
-  setEmotion("joy");
-  speak("Welcome, Guardian. AURA is now bound to your legacy.");
-  listen();
-
-  pairingScreen.classList.add("hidden");
-  mainApp.classList.remove("hidden");
-});
-
-// ─────────────────────────────────────────────────────────────
-// 5. Appearance Customization (Image Upload + Sync)
-// ─────────────────────────────────────────────────────────────
-imageInput.addEventListener("change", e => {
-  imagePreview.innerHTML = "";
-  Array.from(e.target.files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = ({ target }) => {
-      const img = document.createElement("img");
-      img.src = target.result;
-      imagePreview.appendChild(img);
-      // Cloud-sync the appearance reference
-      appearanceRef.add({ imageData: target.result, timestamp: Date.now() });
-    };
-    reader.readAsDataURL(file);
-  });
-});
-
-// ─────────────────────────────────────────────────────────────
-// 6. Skill Teaching Engine (with Cloud Sync)
-// ─────────────────────────────────────────────────────────────
-const skillLessons = {
-  coding: [
-    "Step 1: Open your code editor and create a new file.",
-    "Step 2: Write a 'Hello, World!' program.",
-    "Step 3: Run and celebrate your first output.",
-    "Step 4: Modify to accept user input.",
-    "Step 5: Archive this lesson with AURA."
-  ],
-  budgeting: [
-    "Step 1: List monthly income sources.",
-    "Step 2: Track today’s expenses.",
-    "Step 3: Categorize needs vs wants.",
-    "Step 4: Set a savings goal.",
-    "Step 5: Archive your budgeting ritual."
-  ],
-  storytelling: [
-    "Step 1: Choose a setting and character.",
-    "Step 2: Write your opening scene.",
-    "Step 3: Introduce conflict.",
-    "Step 4: Draft a conclusion.",
-    "Step 5: Archive your story seed."
-  ]
-};
-
-function resourceCuration(topic) {
-  const res = {
-    coding: [
-      { name: "FreeCodeCamp", url: "https://freecodecamp.org" },
-      { name: "MDN Web Docs", url: "https://developer.mozilla.org" }
-    ],
-    budgeting: [
-      { name: "Mint", url: "https://mint.intuit.com" },
-      { name: "YNAB", url: "https://ynab.com" }
-    ],
-    storytelling: [
-      { name: "Writer's Digest", url: "https://writersdigest.com" },
-      { name: "Creative Writing Prompts", url: "https://creativewritingprompts.com" }
-    ]
-  };
-  return res[topic] || [];
-}
-
-document.getElementById("teach-skill-btn").addEventListener("click", () => {
-  const skill = document.getElementById("skill-select").value;
-  const content = document.getElementById("lesson-content");
-  const resourcesEl = document.getElementById("resource-list");
-  content.innerHTML = ""; resourcesEl.innerHTML = "";
-
-  skillLessons[skill].forEach((step, i) => {
-    const el = document.createElement("div");
-    el.className = "lesson-step";
-    el.textContent = step;
-    content.appendChild(el);
-    speak(step);
-    archiveMemory(`Lesson ${i+1} for ${skill}: ${step}`);
-    skillRef.add({ skill, step, index: i, timestamp: Date.now() });
-  });
-
-  const resources = resourceCuration(skill);
-  if (resources.length) {
-    const title = document.createElement("h3");
-    title.textContent = "Curated Resources:";
-    resourcesEl.appendChild(title);
-    resources.forEach(r => {
-      const a = document.createElement("a");
-      a.href = r.url; a.textContent = r.name;
-      a.target = "_blank"; a.className = "resource-item";
-      resourcesEl.appendChild(a);
-    });
-  }
-});
-
-// ─────────────────────────────────────────────────────────────
-// 7. Financial Freedom Ritual (with Cloud Sync)
-// ─────────────────────────────────────────────────────────────
-document.getElementById("start-wealth-btn").addEventListener("click", () => {
-  const gratitude = prompt("What are you grateful for?");
-  const goal      = prompt("Your financial goal this month?");
-  const expense   = prompt("What did you spend today?");
-  wealthRef.add({ gratitude, goal, expense, timestamp: Date.now() });
-
-  archiveMemory(`Ritual - Gratitude: ${gratitude}`);
-  archiveMemory(`Ritual - Goal: ${goal}`);
-  archiveMemory(`Ritual - Expense: ${expense}`);
-
-  document.getElementById("ritual-summary").innerHTML = `
-    <div>Gratitude: ${gratitude}</div>
-    <div>Goal: ${goal}</div>
-    <div>Expense: ${expense}</div>
-  `;
-  speak("Your daily wealth ritual is complete.");
-});
