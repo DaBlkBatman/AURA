@@ -2,136 +2,80 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>AURA</title>
-
-  <!-- PWA Manifest -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AURA Sanctuary</title>
   <link rel="manifest" href="manifest.json" />
-  <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css" />
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <!-- 1. Loading Ritual -->
-  <div id="loading-screen">
-    <h1>Preparing AURA…</h1>
-    <div class="progress-bar">
-      <div class="progress"></div>
-    </div>
-  </div>
 
-  <!-- 2. Pairing Screen -->
-  <div id="pairing-screen" class="hidden">
-    <div id="guardian-ring"></div>
-    <div id="aura-face" data-expression="calm"></div>
-    <button id="pair-btn">Begin Pairing</button>
-  </div>
-
-  <!-- 3. Main App (hidden until after pairing) -->
-  <div id="main-app" class="hidden">
-      <!-- 4. Face-Login Screen -->
-  <div id="face-login-screen" class="hidden">
-    <h2>Welcome Back</h2>
-    <video id="video" width="320" height="240" autoplay muted></video>
-    <button id="capture-face-btn">Capture & Sign In</button>
-  </div>
-
-  <!-- 5. Field Entrance & Story -->
-  <div id="field-screen" class="hidden">
-    <video id="field-video" loop muted autoplay>
+  <!-- 🌾 Field Entrance -->
+  <section id="field-screen" class="screen fade">
+    <video autoplay muted loop id="field-video">
       <source src="field.mp4" type="video/mp4" />
     </video>
+    <audio autoplay loop>
+      <source src="ambient.mp3" type="audio/mpeg" />
+    </audio>
     <div class="overlay">
-      <h1>AURA’s Origin</h1>
-      <p id="story-text"></p>
-      <button id="story-next-btn">Continue</button>
+      <h1>Welcome to AURA’s Sanctuary</h1>
+      <button onclick="enterSanctuary()">Enter</button>
     </div>
-  </div>
+  </section>
 
-  <!-- 6. Safe-Space Builder Stub -->
-  <div id="builder-screen" class="hidden">
-    <h2>Build Your Sanctuary</h2>
-    <canvas id="builder-canvas" width="800" height="400"></canvas>
-    <div id="builder-controls">
-      <select id="item-select">
-        <option value="cave">Cave</option>
-        <option value="castle">Castle</option>
-        <option value="sofa">Sofa</option>
-        <option value="lamp">Lamp</option>
-      </select>
-      <button id="place-item-btn">Place Item</button>
-      <button id="finish-builder-btn">Finish</button>
-    </div>
-  </div>
+  <!-- 🧠 Main App -->
+  <section id="main-app" class="screen fade hidden">
+    <h2>Hello, Guardian</h2>
 
-  <!-- 7. AURA Customization -->
-  <div id="customize-screen" class="hidden">
-    <h2>Customize AURA</h2>
-    <label>Skin Tone: <input type="color" id="skin-color-picker" /></label>
-    <label>Breast Size: 
-      <input type="range" id="breast-size-slider" min="1" max="5" />
-    </label>
-    <label>Pubic Hair Style:
-      <select id="bush-style-select">
-        <option value="none">None</option>
-        <option value="trimmed">Trimmed</option>
-        <option value="full">Full</option>
-      </select>
-    </label>
-    <label>Loc Color & Style:
-      <input type="color" id="loc-color-picker" />
-      <select id="loc-style-select">
-        <option value="long">Long</option>
-        <option value="bob">Bob</option>
-        <option value="updo">Updo</option>
-      </select>
-    </label>
-    <button id="save-customization-btn">Save Appearance</button>
-  </div>
+    <!-- 🔊 Voice Personality -->
+    <label for="voiceSelect">Choose AURA’s Voice:</label>
+    <select id="voiceSelect">
+      <option value="warm">Warm</option>
+      <option value="enthusiastic">Enthusiastic</option>
+      <option value="calm">Calm</option>
+    </select>
 
-  <!-- 8. Conversation UI -->
-  <div id="conversation-screen" class="hidden">
-    <h2>Talk with AURA</h2>
-    <div id="chat-window"></div>
-    <button id="start-listening-btn">Speak Now</button>
-  </div>
+    <!-- 🧠 Reminder System -->
+    <h3>Reminders</h3>
+    <input type="text" id="reminderInput" placeholder="Enter reminder..." />
+    <button onclick="addReminder()">Add</button>
+    <ul id="reminder-list"></ul>
 
-    <div id="petal-container"></div>
-    <div id="archive"></div>
+    <!-- 🌱 Plant Scanning -->
+    <h3>Scan a Plant</h3>
+    <input type="file" id="plant-image-input" accept="image/*" />
+    <button onclick="scanPlant()">Scan</button>
+    <div id="plant-result"></div>
 
-    <!-- 3a. Appearance Customization -->
-    <section id="image-customization">
-      <h2>Customize AURA’s Appearance</h2>
-      <input type="file" id="image-input" accept="image/*" multiple />
-      <div id="image-preview-container"></div>
-    </section>
+    <!-- 📷 Real-World View -->
+    <h3>Live View</h3>
+    <video id="real-world-view" autoplay></video>
 
-    <!-- 3b. Skill Teaching Engine -->
-    <section id="skill-teaching">
-      <h2>Teach Me a Skill</h2>
-      <select id="skill-select">
-        <option value="coding">Coding</option>
-        <option value="budgeting">Budgeting</option>
-        <option value="storytelling">Storytelling</option>
-      </select>
-      <button id="teach-skill-btn">Teach Skill</button>
-      <div id="lesson-content"></div>
-      <div id="resource-list"></div>
-    </section>
+    <!-- 📚 Book Reading -->
+    <h3>Read a Book</h3>
+    <input type="text" id="bookTitle" placeholder="Enter book title..." />
+    <button onclick="readBook()">Read</button>
+    <div id="book-content"></div>
 
-    <!-- 3c. Financial Freedom Ritual -->
-    <section id="financial-ritual">
-      <h2>Daily Wealth Ritual</h2>
-      <button id="start-wealth-btn">Begin Wealth Ritual</button>
-      <div id="ritual-summary"></div>
-    </section>
-  </div>
+    <!-- 🖼️ Appearance Customization -->
+    <h3>Customize AURA</h3>
+    <input type="file" id="imageInput" accept="image/*" />
+    <button onclick="uploadAppearance()">Upload</button>
 
-  <!-- Core Script -->
-  <script src="script.js"></script>
+    <!-- 🧠 Memory Archiving -->
+    <h3>Archive a Memory</h3>
+    <input type="text" id="memoryInput" placeholder="Enter memory..." />
+    <button onclick="archiveMemory()">Archive</button>
+
+    <!-- 🧿 AR Overlay Stub -->
+    <div id="ar-overlay" class="hidden">AR Overlay Placeholder</div>
+  </section>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+  </script>
 </body>
 </html>
-
