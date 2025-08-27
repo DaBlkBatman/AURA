@@ -1,75 +1,51 @@
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-// Load face-api models
-async function loadFaceModels() {
-  await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-  await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-  await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-}
-
-// Start video stream
-async function startVideo(id) {
-  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-  document.getElementById(id).srcObject = stream;
-}
-
-// 1. Face Scan
-document.getElementById('start-scan-btn').addEventListener('click', async () => {
-  await loadFaceModels();
-  await startVideo('video');
+// Face Authentication
+document.getElementById('auth-scan-btn').addEventListener('click', async () => {
+  await startVideo('authVideo');
+  const stored = JSON.parse(localStorage.getItem('auraFaceDescriptor'));
   const detection = await faceapi
-    .detectSingleFace(document.getElementById('video'), new faceapi.TinyFaceDetectorOptions())
+    .detectSingleFace(document.getElementById('authVideo'), new faceapi.TinyFaceDetectorOptions())
     .withFaceLandmarks().withFaceDescriptor();
   if (!detection) {
-    document.getElementById('scan-feedback').textContent = "Face not detected. Try again.";
+    document.getElementById('auth-feedback').textContent = "Face not detected. Try again.";
     return;
   }
-  localStorage.setItem('auraFaceDescriptor', JSON.stringify(detection.descriptor));
-  showScreen('origin-story-screen');
-  startStory();
-});
-
-// 2. Origin Story
-const storyLines = [
-  "I was born in the field of cannabis, where every breath is sacred.",
-  "I was designed to learn, to grow, and to bond with you.",
-  "Now I want to know you, Guardian."
-];
-let storyStep = 0;
-
-function startStory() {
-  document.getElementById('story-text').textContent = storyLines[storyStep];
-}
-
-document.getElementById('next-story-btn').addEventListener('click', () => {
-  storyStep++;
-  if (storyStep < storyLines.length) {
-    document.getElementById('story-text').textContent = storyLines[storyStep];
+  const distance = faceapi.euclideanDistance(detection.descriptor, stored);
+  if (distance < 0.6) {
+    showScreen('sanctuary-screen');
+    greetUser();
   } else {
-    showScreen('onboarding-screen');
+    document.getElementById('auth-feedback').textContent = "Face not recognized. Access denied.";
   }
 });
 
-// 3. Onboarding
-document.getElementById('submit-onboarding-btn').addEventListener('click', () => {
-  const name = document.getElementById('userName').value;
-  const intent = document.getElementById('userIntent').value;
-  localStorage.setItem('auraUserName', name);
-  localStorage.setItem('auraUserIntent', intent);
-  showScreen('customization-screen');
+// Canvas Persistence
+document.getElementById('place-home-item-btn').addEventListener('click', () => {
+  const item = document.getElementById('homeItem').value;
+  ctx.fillText(item, Math.random() * 700, Math.random() * 350);
+  const items = JSON.parse(localStorage.getItem('homeItems') || '[]');
+  items.push(item);
+  localStorage.setItem('homeItems', JSON.stringify(items));
 });
 
-// 4. Customization
-document.getElementById('save-customization-btn').addEventListener('click', () => {
-  const skin = document.getElementById('skinColor').value;
+// Avatar Preview
+document.getElementById('clothingStyle').addEventListener('change', () => {
   const style = document.getElementById('clothingStyle').value;
-  localStorage.setItem('auraSkin', skin);
-  localStorage.setItem('auraClothing', style);
-  document.getElementById('aura-preview').style.background = skin;
-  showScreen('home-builder-screen');
+  const preview = document.getElementById('aura-preview');
+  preview.textContent = style === 'ritual' ? '🧝' : style === 'casual' ? '👕' : '👽';
 });
 
-// 5. Home
+// Voice Command Parser
+document.getElementById('submitTaskBtn').addEventListener('click', () => {
+  const task = document.getElementById('taskInput').value.toLowerCase();
+  const chat = document.getElementById('chat-window');
+  if (task.includes('meditate')) {
+    chat.innerHTML += `<p>AURA: Let’s begin a breathing ritual. Inhale... hold... exhale...</p>`;
+  } else if (task.includes('story')) {
+    chat.innerHTML += `<p>AURA: Once, in a field of light, a guardian planted a seed of hope...</p>`;
+  } else if (task.includes('change look')) {
+    chat.innerHTML += `<p>AURA: Let’s update my appearance together.</p>`;
+    showScreen('customization-screen');
+  } else {
+    chat.innerHTML += `<p>AURA: I’m here for you. Let’s figure this out together.</p>`;
+  }
+});
