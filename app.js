@@ -1,191 +1,88 @@
-// 🔮 Screen Manager
-const containers = [
-  'loading-screen', 'pairing-screen', 'face-login-screen',
-  'field-screen', 'builder-screen', 'customize-screen',
-  'conversation-screen', 'main-app'
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// 1. Face Scan
+document.getElementById('start-scan-btn').addEventListener('click', async () => {
+  showScreen('origin-story-screen');
+  startVideo('video');
+  startStory();
+});
+
+// 2. Origin Story
+const storyLines = [
+  "I was born in the field of cannabis, where every breath is sacred.",
+  "I was designed to learn, to grow, and to bond with you.",
+  "Now I want to know you, Guardian."
 ];
+let storyStep = 0;
 
-function showContainer(...ids) {
-  containers.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.add('hidden');
-  });
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('hidden');
-  });
+function startStory() {
+  document.getElementById('story-text').textContent = storyLines[storyStep];
 }
 
-// 🔐 Firebase Setup
-firebase.initializeApp({
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID"
-});
-const db = firebase.firestore();
-let guardianId = null;
-let appearanceRef = null;
-
-// 🌅 App Initialization
-document.addEventListener('DOMContentLoaded', async () => {
-  showContainer('loading-screen');
-  startProgressAnimation();
-  await userPairLogin();
-  await initFaceAPI();
-});
-
-function startProgressAnimation() {
-  const bar = document.querySelector('.progress');
-  let pct = 0;
-  const iv = setInterval(() => {
-    pct += 5;
-    bar.style.width = `${pct}%`;
-    if (pct >= 100) {
-      clearInterval(iv);
-      showContainer('pairing-screen');
-    }
-  }, 50);
-}
-
-async function userPairLogin() {
-  return new Promise(res => {
-    setTimeout(() => {
-      guardianId = localStorage.getItem('guardianId') || `g-${Date.now()}`;
-      localStorage.setItem('guardianId', guardianId);
-      appearanceRef = db.collection('guardians').doc(guardianId).collection('appearance');
-      res();
-    }, 800);
-  });
-}
-
-// 🔗 Pairing
-document.getElementById('pair-btn').addEventListener('click', () => {
-  showContainer('face-login-screen');
-  startVideo();
-});
-
-// 🧠 Face Recognition
-async function initFaceAPI() {
-  await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-  await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-  await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-}
-
-async function startVideo() {
-  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-  document.getElementById('video').srcObject = stream;
-}
-
-document.getElementById('capture-face-btn').addEventListener('click', async () => {
-  const detection = await faceapi
-    .detectSingleFace(document.getElementById('video'), new faceapi.TinyFaceDetectorOptions())
-    .withFaceLandmarks().withFaceDescriptor();
-  if (!detection) return alert('Face not detected.');
-  await appearanceRef.doc('face').set({ descriptor: Array.from(detection.descriptor), timestamp: Date.now() });
-  showContainer('field-screen');
-});
-
-// 🌾 Field Entrance
-function enterSanctuary() {
-  showContainer('main-app');
-  launchConversation();
-}
-
-// 🎨 Appearance Upload
-function uploadAppearance() {
-  const file = document.getElementById('imageInput').files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    appearanceRef.doc('photo').set({ image: reader.result, timestamp: Date.now() });
-  };
-  reader.readAsDataURL(file);
-}
-
-// 🧠 Memory Archiving
-function archiveMemory() {
-  const text = document.getElementById('memoryInput').value;
-  if (!text) return;
-  db.collection('guardians').doc(guardianId).collection('memories').add({
-    text, timestamp: Date.now()
-  });
-}
-
-// 📚 Book Reading
-async function readBook() {
-  const title = document.getElementById('bookTitle').value.trim();
-  if (!title) return;
-  try {
-    const res = await fetch(`/books/${encodeURIComponent(title)}.txt`);
-    const text = await res.text();
-    document.getElementById('book-content').textContent = text.slice(0, 1000);
-    speak(text.slice(0, 500));
-  } catch {
-    document.getElementById('book-content').textContent = "Book not found.";
+document.getElementById('next-story-btn').addEventListener('click', () => {
+  storyStep++;
+  if (storyStep < storyLines.length) {
+    document.getElementById('story-text').textContent = storyLines[storyStep];
+  } else {
+    showScreen('onboarding-screen');
   }
-}
-
-// 🌱 Plant Scanning
-function scanPlant() {
-  const file = document.getElementById('plant-image-input').files[0];
-  if (!file) return;
-  document.getElementById('plant-result').textContent = "Analyzing plant… (stub)";
-  // Future: ML model integration
-}
-
-// 📷 Real-World View
-navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
-  document.getElementById('real-world-view').srcObject = stream;
 });
 
-// 🧠 Reminder System
-function addReminder() {
-  const text = document.getElementById('reminderInput').value;
-  if (!text) return;
-  const li = document.createElement('li');
-  li.textContent = text;
-  document.getElementById('reminder-list').appendChild(li);
-  db.collection('guardians').doc(guardianId).collection('reminders').add({
-    text, timestamp: Date.now()
-  });
-}
-
-// 🗣️ Voice Personality
-function getVoiceOptions() {
-  const choice = document.getElementById('voiceSelect').value;
-  if (choice === 'warm') return { rate: 1.0, pitch: 1.1 };
-  if (choice === 'enthusiastic') return { rate: 1.2, pitch: 1.3 };
-  return { rate: 0.9, pitch: 1.0 };
-}
-
-// 💬 Conversation
-function launchConversation() {
-  const welcome = "Hey best friend—I’m here for you, ready to read, translate, guide your wealth, decode baby cries, teach anything, care for your plants, and remind you of whatever you need.";
-  appendChat('AURA', welcome);
-  speak(welcome);
-}
-
-function appendChat(sender, text) {
-  const div = document.createElement('div');
-  div.className = sender === 'AURA' ? 'chat-aura' : 'chat-user';
-  div.textContent = `${sender}: ${text}`;
-  document.getElementById('chat-window').appendChild(div);
-}
-
-function speak(text) {
-  const utter = new SpeechSynthesisUtterance(text);
-  const opts = getVoiceOptions();
-  utter.rate = opts.rate;
-  utter.pitch = opts.pitch;
-  speechSynthesis.speak(utter);
-}
-
-document.getElementById('start-listening-btn').addEventListener('click', () => {
-  const recog = new webkitSpeechRecognition();
-  recog.onresult = e => {
-    const utter = e.results[0][0].transcript;
-    appendChat('You', utter);
-    speak(`You said: ${utter}`);
-  };
-  recog.start();
+// 3. Onboarding Questions
+document.getElementById('submit-onboarding-btn').addEventListener('click', () => {
+  const name = document.getElementById('userName').value;
+  const intent = document.getElementById('userIntent').value;
+  localStorage.setItem('auraUserName', name);
+  localStorage.setItem('auraUserIntent', intent);
+  showScreen('customization-screen');
 });
+
+// 4. Customization
+document.getElementById('save-customization-btn').addEventListener('click', () => {
+  const skin = document.getElementById('skinColor').value;
+  const style = document.getElementById('clothingStyle').value;
+  localStorage.setItem('auraSkin', skin);
+  localStorage.setItem('auraClothing', style);
+  showScreen('home-builder-screen');
+});
+
+// 5. Home Builder
+const canvas = document.getElementById('homeCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = 800;
+canvas.height = 400;
+
+document.getElementById('place-home-item-btn').addEventListener('click', () => {
+  const item = document.getElementById('homeItem').value;
+  ctx.fillStyle = '#fff';
+  ctx.font = '24px sans-serif';
+  ctx.fillText(item, Math.random() * 700, Math.random() * 350);
+});
+
+document.getElementById('finish-home-btn').addEventListener('click', () => {
+  showScreen('auth-screen');
+  startVideo('authVideo');
+});
+
+// 6. Authentication
+document.getElementById('auth-scan-btn').addEventListener('click', () => {
+  // Simulate face match
+  setTimeout(() => {
+    showScreen('sanctuary-screen');
+    greetUser();
+  }, 1500);
+});
+
+// 7. Sanctuary & Task Support
+function greetUser() {
+  const name = localStorage.getItem('auraUserName') || 'Guardian';
+  const chat = document.getElementById('chat-window');
+  chat.innerHTML = `<p>AURA: Welcome home, ${name}. What shall we do today?</p>`;
+}
+
+document.getElementById('submitTaskBtn').addEventListener('click', () => {
+  const task = document.getElementById('taskInput').value;
+  const chat = document.get
