@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>AURA Companion</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+  <script defer src="app.js"></script>
 </head>
 <body>
 
@@ -15,7 +16,7 @@
     <p>AURA will now scan your face to begin our journey.</p>
     <video id="video" autoplay muted></video>
     <button id="start-scan-btn">Begin Scan</button>
-    <p id="scan-feedback"></p>
+    <p id="scan-feedback" class="feedback"></p>
   </section>
 
   <!-- 2. Origin Story in the Cannabis Field -->
@@ -93,7 +94,7 @@
     <p>Authenticating your face to enter your sanctuary…</p>
     <video id="authVideo" autoplay muted></video>
     <button id="auth-scan-btn">Scan Face</button>
-    <p id="auth-feedback"></p>
+    <p id="auth-feedback" class="feedback"></p>
   </section>
 
   <!-- 7. Sanctuary & Task Support -->
@@ -103,6 +104,5 @@
     <button id="start-listening-btn">Speak to AURA</button>
   </section>
 
-  <script src="app.js"></script>
 </body>
 </html>
