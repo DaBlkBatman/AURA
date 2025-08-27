@@ -9,20 +9,23 @@
 </head>
 <body>
 
-  <!-- 1. Face Scan -->
+  <!-- 1. Welcome & Face Scan -->
   <section id="face-scan-screen" class="screen active">
     <h2>Welcome, Guardian</h2>
-    <p>AURA will now scan your face to begin your journey.</p>
+    <p>AURA will now scan your face to begin our journey.</p>
     <video id="video" autoplay muted></video>
     <button id="start-scan-btn">Begin Scan</button>
     <p id="scan-feedback"></p>
   </section>
 
-  <!-- 2. Origin Story -->
+  <!-- 2. Origin Story in the Cannabis Field -->
   <section id="origin-story-screen" class="screen">
-    <video autoplay muted loop id="field-video">
-      <source src="field.mp4" type="video/mp4" />
+    <video id="field-video" autoplay muted loop>
+      <source src="moon-garden.mp4" type="video/mp4" />
     </video>
+    <audio id="lofi-music" autoplay loop>
+      <source src="lofi-jazz.mp3" type="audio/mpeg" />
+    </audio>
     <div class="overlay">
       <h2>AURA’s Origin</h2>
       <p id="story-text"></p>
@@ -30,7 +33,7 @@
     </div>
   </section>
 
-  <!-- 3. Onboarding -->
+  <!-- 3. Interactive Onboarding Questions -->
   <section id="onboarding-screen" class="screen">
     <h2>Let’s Get to Know You</h2>
     <label>Name: <input type="text" id="userName" /></label>
@@ -38,10 +41,28 @@
     <button id="submit-onboarding-btn">Continue</button>
   </section>
 
-  <!-- 4. Customization -->
+  <!-- 4. Full-Body Customization -->
   <section id="customization-screen" class="screen">
     <h2>Customize AURA</h2>
     <label>Skin Tone: <input type="color" id="skinColor" /></label>
+    <label>Breast Size: <input type="range" id="breastSize" min="1" max="5" /></label>
+    <label>Ass Size: <input type="range" id="assSize" min="1" max="5" /></label>
+    <label>Areola Color: <input type="color" id="areolaColor" /></label>
+    <label>Areola Shape:
+      <select id="areolaShape">
+        <option value="round">Round</option>
+        <option value="oval">Oval</option>
+        <option value="heart">Heart</option>
+      </select>
+    </label>
+    <label>Loc Color: <input type="color" id="locColor" /></label>
+    <label>Loc Style:
+      <select id="locStyle">
+        <option value="long">Long</option>
+        <option value="bob">Bob</option>
+        <option value="updo">Updo</option>
+      </select>
+    </label>
     <label>Clothing Style:
       <select id="clothingStyle">
         <option value="ritual">Ritual Robes</option>
@@ -53,7 +74,7 @@
     <button id="save-customization-btn">Save</button>
   </section>
 
-  <!-- 5. Home Builder -->
+  <!-- 5. Sanctuary Builder -->
   <section id="home-builder-screen" class="screen">
     <h2>Build Your Sanctuary</h2>
     <canvas id="homeCanvas"></canvas>
@@ -66,7 +87,7 @@
     <button id="finish-home-btn">Finish</button>
   </section>
 
-  <!-- 6. Authentication -->
+  <!-- 6. Restart & Biometric Authentication -->
   <section id="auth-screen" class="screen">
     <h2>Welcome Back</h2>
     <p>Authenticating your face to enter your sanctuary…</p>
@@ -75,12 +96,11 @@
     <p id="auth-feedback"></p>
   </section>
 
-  <!-- 7. Sanctuary -->
+  <!-- 7. Sanctuary & Task Support -->
   <section id="sanctuary-screen" class="screen">
     <h2>Your Sanctuary</h2>
     <div id="chat-window"></div>
-    <input type="text" id="taskInput" placeholder="What do you need help with?" />
-    <button id="submitTaskBtn">Ask AURA</button>
+    <button id="start-listening-btn">Speak to AURA</button>
   </section>
 
   <script src="app.js"></script>
