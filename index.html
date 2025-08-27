@@ -5,19 +5,20 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>AURA Companion</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
 </head>
 <body>
 
-  <!-- 1. Welcome & Face Scan -->
-  <section id="face-scan-screen" class="screen hidden">
+  <!-- 1. Face Scan -->
+  <section id="face-scan-screen" class="screen active">
     <h2>Welcome, Guardian</h2>
     <p>AURA will now scan your face to begin your journey.</p>
     <video id="video" autoplay muted></video>
     <button id="start-scan-btn">Begin Scan</button>
   </section>
 
-  <!-- 2. Origin Story in Cannabis Field -->
-  <section id="origin-story-screen" class="screen hidden">
+  <!-- 2. Origin Story -->
+  <section id="origin-story-screen" class="screen">
     <video autoplay muted loop id="field-video">
       <source src="field.mp4" type="video/mp4" />
     </video>
@@ -28,16 +29,16 @@
     </div>
   </section>
 
-  <!-- 3. Interactive Onboarding Questions -->
-  <section id="onboarding-screen" class="screen hidden">
+  <!-- 3. Onboarding -->
+  <section id="onboarding-screen" class="screen">
     <h2>Let’s Get to Know You</h2>
     <label>Name: <input type="text" id="userName" /></label>
     <label>What brings you here today? <input type="text" id="userIntent" /></label>
     <button id="submit-onboarding-btn">Continue</button>
   </section>
 
-  <!-- 4. AURA Customization -->
-  <section id="customization-screen" class="screen hidden">
+  <!-- 4. Customization -->
+  <section id="customization-screen" class="screen">
     <h2>Customize AURA</h2>
     <label>Skin Tone: <input type="color" id="skinColor" /></label>
     <label>Clothing Style:
@@ -50,8 +51,8 @@
     <button id="save-customization-btn">Save</button>
   </section>
 
-  <!-- 5. Home Creation -->
-  <section id="home-builder-screen" class="screen hidden">
+  <!-- 5. Home Builder -->
+  <section id="home-builder-screen" class="screen">
     <h2>Build Your Sanctuary</h2>
     <canvas id="homeCanvas"></canvas>
     <select id="homeItem">
@@ -63,16 +64,16 @@
     <button id="finish-home-btn">Finish</button>
   </section>
 
-  <!-- 6. Restart & Authentication -->
-  <section id="auth-screen" class="screen hidden">
+  <!-- 6. Authentication -->
+  <section id="auth-screen" class="screen">
     <h2>Welcome Back</h2>
     <p>Authenticating your face to enter your sanctuary…</p>
     <video id="authVideo" autoplay muted></video>
     <button id="auth-scan-btn">Scan Face</button>
   </section>
 
-  <!-- 7. Sanctuary & Task Support -->
-  <section id="sanctuary-screen" class="screen hidden">
+  <!-- 7. Sanctuary -->
+  <section id="sanctuary-screen" class="screen">
     <h2>Your Sanctuary</h2>
     <div id="chat-window"></div>
     <input type="text" id="taskInput" placeholder="What do you need help with?" />
