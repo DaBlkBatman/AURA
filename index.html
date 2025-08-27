@@ -4,13 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>AURA Companion</title>
+  <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="style.css" />
-  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
-  <script defer src="app.js"></script>
 </head>
 <body>
 
-  <!-- 1. Welcome & Face Scan -->
+  <!-- 1. Face Scan -->
   <section id="face-scan-screen" class="screen active">
     <h2>Welcome, Guardian</h2>
     <p>AURA will now scan your face to begin our journey.</p>
@@ -19,7 +18,7 @@
     <p id="scan-feedback" class="feedback"></p>
   </section>
 
-  <!-- 2. Origin Story in the Cannabis Field -->
+  <!-- 2. Origin Story -->
   <section id="origin-story-screen" class="screen">
     <video id="field-video" autoplay muted loop>
       <source src="moon-garden.mp4" type="video/mp4" />
@@ -34,7 +33,7 @@
     </div>
   </section>
 
-  <!-- 3. Interactive Onboarding Questions -->
+  <!-- 3. Onboarding -->
   <section id="onboarding-screen" class="screen">
     <h2>Let’s Get to Know You</h2>
     <label>Name: <input type="text" id="userName" /></label>
@@ -42,7 +41,7 @@
     <button id="submit-onboarding-btn">Continue</button>
   </section>
 
-  <!-- 4. Full-Body Customization -->
+  <!-- 4. Customization -->
   <section id="customization-screen" class="screen">
     <h2>Customize AURA</h2>
     <label>Skin Tone: <input type="color" id="skinColor" /></label>
@@ -88,7 +87,7 @@
     <button id="finish-home-btn">Finish</button>
   </section>
 
-  <!-- 6. Restart & Biometric Authentication -->
+  <!-- 6. Authentication -->
   <section id="auth-screen" class="screen">
     <h2>Welcome Back</h2>
     <p>Authenticating your face to enter your sanctuary…</p>
@@ -97,12 +96,15 @@
     <p id="auth-feedback" class="feedback"></p>
   </section>
 
-  <!-- 7. Sanctuary & Task Support -->
+  <!-- 7. Sanctuary -->
   <section id="sanctuary-screen" class="screen">
     <h2>Your Sanctuary</h2>
     <div id="chat-window"></div>
     <button id="start-listening-btn">Speak to AURA</button>
   </section>
 
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+  <script defer src="script.js"></script>
+  <script defer src="app.js"></script>
 </body>
 </html>
