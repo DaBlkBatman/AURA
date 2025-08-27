@@ -1,4 +1,4 @@
-body, html {
+body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
   background: #1e1e2f;
@@ -6,21 +6,18 @@ body, html {
 }
 
 .screen {
+  display: none;
   padding: 2rem;
-  transition: opacity 0.8s ease;
-}
-
-.hidden {
-  display: none !important;
-}
-
-.fade {
-  opacity: 0;
   animation: fadeIn 1s forwards;
 }
 
+.screen.active {
+  display: block;
+}
+
 @keyframes fadeIn {
-  to { opacity: 1; }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 #field-video {
@@ -35,27 +32,15 @@ body, html {
 .overlay {
   position: relative;
   z-index: 1;
-  text-align: center;
-  margin-top: 20vh;
+  background: rgba(0,0,0,0.6);
+  padding: 2rem;
+  border-radius: 12px;
 }
 
-#chat-window {
-  background: #333;
-  padding: 1rem;
-  border-radius: 8px;
-  height: 200px;
-  overflow-y: auto;
-  margin-bottom: 1rem;
-}
-
-.chat-aura {
-  color: #00ffcc;
-  margin-bottom: 0.5rem;
-}
-
-.chat-user {
-  color: #ffcc00;
-  margin-bottom: 0.5rem;
+canvas {
+  border: 2px solid #fff;
+  background: #2a2a3f;
+  margin: 1rem 0;
 }
 
 button {
@@ -66,11 +51,4 @@ button {
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
-}
-
-input, select {
-  margin: 0.5rem;
-  padding: 0.4rem;
-  border-radius: 4px;
-  border: none;
 }
