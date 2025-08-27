@@ -52,3 +52,11 @@ button {
   cursor: pointer;
   font-weight: bold;
 }
+
+#aura-preview {
+  margin-top: 1rem;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: #ccc;
+}
