@@ -9,16 +9,16 @@
 </head>
 <body>
 
-  <!-- 1. Face Scan -->
+  <!-- 1. Face Scan Screen -->
   <section id="face-scan-screen" class="screen active">
     <h2>Welcome, Guardian</h2>
     <p>AURA will now scan your face to begin our journey.</p>
-    <video id="video" autoplay muted></video>
+    <video id="video" autoplay muted playsinline></video>
     <button id="start-scan-btn">Begin Scan</button>
     <p id="scan-feedback" class="feedback"></p>
   </section>
 
-  <!-- 2. Origin Story -->
+  <!-- 2. Origin Story Screen -->
   <section id="origin-story-screen" class="screen">
     <video id="field-video" autoplay muted loop>
       <source src="moon-garden.mp4" type="video/mp4" />
@@ -33,13 +33,79 @@
     </div>
   </section>
 
-  <!-- (the rest of your screens go here: onboarding, customization, builder, auth, sanctuary) -->
+  <!-- 3. Onboarding Screen -->
+  <section id="onboarding-screen" class="screen">
+    <h2>Let’s Get to Know You</h2>
+    <label>Name: <input type="text" id="userName" /></label>
+    <label>What brings you here today? <input type="text" id="userIntent" /></label>
+    <button id="submit-onboarding-btn">Continue</button>
+  </section>
 
-  <!-- 1) Face API -->
+  <!-- 4. Customization Screen -->
+  <section id="customization-screen" class="screen">
+    <h2>Customize AURA</h2>
+    <label>Skin Tone: <input type="color" id="skinColor" /></label>
+    <label>Breast Size: <input type="range" id="breastSize" min="1" max="5" /></label>
+    <label>Ass Size: <input type="range" id="assSize" min="1" max="5" /></label>
+    <label>Areola Color: <input type="color" id="areolaColor" /></label>
+    <label>Areola Shape:
+      <select id="areolaShape">
+        <option value="round">Round</option>
+        <option value="oval">Oval</option>
+        <option value="heart">Heart</option>
+      </select>
+    </label>
+    <label>Loc Color: <input type="color" id="locColor" /></label>
+    <label>Loc Style:
+      <select id="locStyle">
+        <option value="long">Long</option>
+        <option value="bob">Bob</option>
+        <option value="updo">Updo</option>
+      </select>
+    </label>
+    <label>Clothing Style:
+      <select id="clothingStyle">
+        <option value="ritual">Ritual Robes</option>
+        <option value="casual">Casual</option>
+        <option value="futuristic">Futuristic</option>
+      </select>
+    </label>
+    <div id="aura-preview"></div>
+    <button id="save-customization-btn">Save</button>
+  </section>
+
+  <!-- 5. Sanctuary Builder Screen -->
+  <section id="home-builder-screen" class="screen">
+    <h2>Build Your Sanctuary</h2>
+    <canvas id="homeCanvas"></canvas>
+    <select id="homeItem">
+      <option value="cabin">Cabin</option>
+      <option value="temple">Temple</option>
+      <option value="treehouse">Treehouse</option>
+    </select>
+    <button id="place-home-item-btn">Place</button>
+    <button id="finish-home-btn">Finish</button>
+  </section>
+
+  <!-- 6. Authentication Screen -->
+  <section id="auth-screen" class="screen">
+    <h2>Welcome Back</h2>
+    <p>Authenticating your face to enter your sanctuary…</p>
+    <video id="authVideo" autoplay muted playsinline></video>
+    <button id="auth-scan-btn">Scan Face</button>
+    <p id="auth-feedback" class="feedback"></p>
+  </section>
+
+  <!-- 7. Sanctuary Screen -->
+  <section id="sanctuary-screen" class="screen">
+    <h2>Your Sanctuary</h2>
+    <div id="chat-window"></div>
+    <button id="start-listening-btn">Speak to AURA</button>
+  </section>
+
+  <!-- Load scripts in order -->
   <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
-  <!-- 2) Ritual bootstrap & face-scan handler -->
   <script defer src="script.js"></script>
-  <!-- 3) Main flow (onboarding → customization → builder → auth → sanctuary) -->
   <script defer src="app.js"></script>
 </body>
 </html>
