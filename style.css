@@ -59,4 +59,8 @@ button {
   height: 100px;
   border-radius: 50%;
   background: #ccc;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
