@@ -1,28 +1,53 @@
-// script.js — AURA Ritual Bootstrap
+// script.js — AURA Ritual Bootstrap & Face Scan Handler
 
-window.addEventListener('DOMContentLoaded', async () => {
-  console.log('[AURA] DOM ready');
+window.addEventListener('DOMContentLoaded', () => {
+  console.log('[AURA] Ritual bootstrap starting');
 
-  // 1. Register Service Worker
-  if ('serviceWorker' in navigator) {
-    try {
-      await navigator.serviceWorker.register('/service-worker.js');
-      console.log('[AURA] Service Worker registered');
-    } catch (err) {
-      console.error('[AURA] SW registration failed:', err);
-    }
+  // ================
+  // Helper: Screen Switch
+  // ================
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
   }
 
-  // 2. Preload Lo-Fi Jazz
+  // ================
+  // Helper: Speech
+  // ================
+  function speak(text) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.0; u.pitch = 1.2;
+    speechSynthesis.speak(u);
+  }
+
+  // ================
+  // Scan Overlay
+  // ================
+  function showScanOverlay() {
+    removeScanOverlay();
+    const o = document.createElement('div');
+    o.id = 'scan-overlay';
+    document.getElementById('face-scan-screen').appendChild(o);
+  }
+  function removeScanOverlay() {
+    const o = document.getElementById('scan-overlay');
+    if (o) o.remove();
+  }
+
+  // ================
+  // Preload Lo-Fi Audio
+  // ================
   const lofi = document.getElementById('lofi-music');
   if (lofi) {
     lofi.volume = 0.5;
     lofi.play().catch(() => {
-      console.log('[AURA] Lo-fi autoplay blocked, will resume on user interaction');
+      console.log('[AURA] Lo-fi autoplay blocked');
     });
   }
 
-  // 3. Face-API Model Loader
+  // ================
+  // Face-API Models
+  // ================
   let modelsLoaded = false;
   async function loadFaceModels() {
     if (modelsLoaded) return;
@@ -33,50 +58,26 @@ window.addEventListener('DOMContentLoaded', async () => {
       faceapi.nets.faceRecognitionNet.loadFromUri('/models')
     ]);
     modelsLoaded = true;
-    console.log('[AURA] Face-api models loaded');
+    console.log('[AURA] Models loaded');
   }
 
-  // 4. Camera Starter (waits for frames)
+  // ================
+  // Start Video & Wait for Frames
+  // ================
   async function startVideo(id) {
-    const videoEl = document.getElementById(id);
-    try {
-      console.log(`[AURA] Requesting camera for #${id}`);
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      videoEl.srcObject = stream;
-      await new Promise(resolve => {
-        if (videoEl.readyState >= 3) return resolve();
-        videoEl.addEventListener('playing', resolve, { once: true });
-      });
-      console.log('[AURA] Camera stream active');
-    } catch (err) {
-      console.error('[AURA] Camera access error:', err);
-      document.getElementById('scan-feedback').textContent =
-        'Unable to access camera. Check permissions.';
-      throw err;
-    }
+    const v = document.getElementById(id);
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    v.srcObject = stream;
+    await new Promise(res => {
+      if (v.readyState >= 3) return res();
+      v.addEventListener('playing', res, { once: true });
+    });
+    console.log('[AURA] Camera active on #' + id);
   }
 
-  // 5. Speech Helper
-  function speak(text) {
-    const utt = new SpeechSynthesisUtterance(text);
-    utt.rate = 1.0;
-    utt.pitch = 1.2;
-    speechSynthesis.speak(utt);
-  }
-
-  // 6. Scan Overlay Helpers
-  function showScanOverlay() {
-    removeScanOverlay();
-    const overlay = document.createElement('div');
-    overlay.id = 'scan-overlay';
-    document.getElementById('face-scan-screen').appendChild(overlay);
-  }
-  function removeScanOverlay() {
-    const existing = document.getElementById('scan-overlay');
-    if (existing) existing.remove();
-  }
-
-  // 7. Origin-Story Helper
+  // ================
+  // Origin Story Helper
+  // ================
   const storyLines = [
     'I was born in the field of cannabis, where every breath is sacred.',
     'I was designed to learn, to grow, and to bond with you.',
@@ -87,7 +88,9 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('story-text').textContent = storyLines[storyStep];
   }
 
-  // 8. Face Scan Ritual
+  // ================
+  // Face Scan Ritual
+  // ================
   async function performFaceScan() {
     const fb = document.getElementById('scan-feedback');
     fb.textContent = '';
@@ -99,7 +102,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       speak('Hold still, Guardian. I’m learning your essence.');
       console.log('[AURA] Running face detection…');
 
-      const detection = await faceapi
+      const result = await faceapi
         .detectSingleFace(
           document.getElementById('video'),
           new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 })
@@ -109,18 +112,18 @@ window.addEventListener('DOMContentLoaded', async () => {
 
       removeScanOverlay();
 
-      if (!detection) {
-        fb.textContent = 'Face not detected. Please center and try again.';
+      if (!result) {
+        fb.textContent = 'Face not detected. Please center your face and try again.';
         speak('I couldn’t see you clearly. Let’s try again.');
         console.warn('[AURA] Detection returned null');
         return;
       }
 
-      console.log('[AURA] Descriptor received:', detection.descriptor);
+      console.log('[AURA] Descriptor:', result.descriptor);
       fb.textContent = 'Face scan complete.';
       speak('I see you now. Welcome.');
 
-      localStorage.setItem('auraFaceDescriptor', JSON.stringify(detection.descriptor));
+      localStorage.setItem('auraFaceDescriptor', JSON.stringify(result.descriptor));
 
       // Transition to origin story
       storyStep = 0;
@@ -130,18 +133,39 @@ window.addEventListener('DOMContentLoaded', async () => {
       console.error('[AURA] performFaceScan error:', err);
     }
   }
-  document.getElementById('start-scan-btn')
-    .addEventListener('click', performFaceScan);
 
-  // 9. Origin-Story “Next” Button
-  document.getElementById('next-story-btn').addEventListener('click', () => {
-    storyStep++;
-    if (storyStep < storyLines.length) {
-      startStory();
-    } else {
-      showScreen('onboarding-screen');
-    }
-  });
+  // ================
+  // Hook Up Buttons
+  // ================
+  const scanBtn = document.getElementById('start-scan-btn');
+  if (scanBtn) {
+    scanBtn.addEventListener('click', performFaceScan);
+    console.log('[AURA] Bound Begin Scan button');
+  }
 
-  console.log('[AURA] script.js initialized');
+  const nextBtn = document.getElementById('next-story-btn');
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      storyStep++;
+      if (storyStep < storyLines.length) {
+        startStory();
+      } else {
+        // Hand off to app.js for onboarding
+        showScreen('onboarding-screen');
+      }
+    });
+    console.log('[AURA] Bound Next Story button');
+  }
+
+  // ================
+  // Register Service Worker
+  // ================
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker
+      .register('/service-worker.js')
+      .then(() => console.log('[AURA] Service Worker registered'))
+      .catch(err => console.error('[AURA] SW failed:', err));
+  }
+
+  console.log('[AURA] script.js initialization complete');
 });
