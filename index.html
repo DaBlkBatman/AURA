@@ -13,7 +13,7 @@
   <section id="face-scan-screen" class="screen active">
     <h2>Welcome, Guardian</h2>
     <p>AURA will now scan your face to begin our journey.</p>
-    <video id="video" autoplay muted playsinline></video>
+    <video id="video" autoplay muted playsinline crossorigin="anonymous"></video>
     <button id="start-scan-btn">Begin Scan</button>
     <p id="scan-feedback" class="feedback"></p>
   </section>
@@ -44,32 +44,7 @@
   <!-- 4. Customization Screen -->
   <section id="customization-screen" class="screen">
     <h2>Customize AURA</h2>
-    <label>Skin Tone: <input type="color" id="skinColor" /></label>
-    <label>Breast Size: <input type="range" id="breastSize" min="1" max="5" /></label>
-    <label>Ass Size: <input type="range" id="assSize" min="1" max="5" /></label>
-    <label>Areola Color: <input type="color" id="areolaColor" /></label>
-    <label>Areola Shape:
-      <select id="areolaShape">
-        <option value="round">Round</option>
-        <option value="oval">Oval</option>
-        <option value="heart">Heart</option>
-      </select>
-    </label>
-    <label>Loc Color: <input type="color" id="locColor" /></label>
-    <label>Loc Style:
-      <select id="locStyle">
-        <option value="long">Long</option>
-        <option value="bob">Bob</option>
-        <option value="updo">Updo</option>
-      </select>
-    </label>
-    <label>Clothing Style:
-      <select id="clothingStyle">
-        <option value="ritual">Ritual Robes</option>
-        <option value="casual">Casual</option>
-        <option value="futuristic">Futuristic</option>
-      </select>
-    </label>
+    <!-- Your customization inputs here -->
     <div id="aura-preview"></div>
     <button id="save-customization-btn">Save</button>
   </section>
@@ -78,11 +53,7 @@
   <section id="home-builder-screen" class="screen">
     <h2>Build Your Sanctuary</h2>
     <canvas id="homeCanvas"></canvas>
-    <select id="homeItem">
-      <option value="cabin">Cabin</option>
-      <option value="temple">Temple</option>
-      <option value="treehouse">Treehouse</option>
-    </select>
+    <select id="homeItem"><option>cabin</option><option>temple</option><option>treehouse</option></select>
     <button id="place-home-item-btn">Place</button>
     <button id="finish-home-btn">Finish</button>
   </section>
@@ -91,7 +62,7 @@
   <section id="auth-screen" class="screen">
     <h2>Welcome Back</h2>
     <p>Authenticating your face to enter your sanctuary…</p>
-    <video id="authVideo" autoplay muted playsinline></video>
+    <video id="authVideo" autoplay muted playsinline crossorigin="anonymous"></video>
     <button id="auth-scan-btn">Scan Face</button>
     <p id="auth-feedback" class="feedback"></p>
   </section>
@@ -103,9 +74,9 @@
     <button id="start-listening-btn">Speak to AURA</button>
   </section>
 
-  <!-- Load scripts in order -->
-  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
-  <script defer src="script.js"></script>
-  <script defer src="app.js"></script>
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+  <script src="script.js"></script>
+  <script src="app.js" defer></script>
 </body>
 </html>
