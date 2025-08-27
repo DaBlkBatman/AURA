@@ -1,23 +1,19 @@
 const CACHE_NAME = 'aura-cache-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/app.js',
-  '/field.mp4',
-  '/ambient.mp3',
-  '/icon-192.png',
-  '/icon-512.png'
+const ASSETS = [
+  '/', '/index.html', '/style.css',
+  '/script.js', '/app.js', '/manifest.json',
+  '/moon-garden.mp4', '/lofi-jazz.mp3',
+  // include model files if you want offline face-api.js
 ];
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
 });
 
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(response => response || fetch(event.request))
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(r => r || fetch(e.request))
   );
 });
