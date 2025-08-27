@@ -3,29 +3,34 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
 }
 
-// 1. Face Scan
-document.getElementById('start-scan-btn').addEventListener('click', async () => {
-  await startVideo('video');
-  await loadFaceModels();
-  const detection = await faceapi
-    .detectSingleFace(document.getElementById('video'), new faceapi.TinyFaceDetectorOptions())
-    .withFaceLandmarks().withFaceDescriptor();
-  if (!detection) return alert('Face not detected.');
-  localStorage.setItem('auraFaceDescriptor', JSON.stringify(detection.descriptor));
-  showScreen('origin-story-screen');
-  startStory();
-});
-
+// Load face-api models
 async function loadFaceModels() {
   await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
   await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
   await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
 }
 
+// Start video stream
 async function startVideo(id) {
   const stream = await navigator.mediaDevices.getUserMedia({ video: true });
   document.getElementById(id).srcObject = stream;
 }
+
+// 1. Face Scan
+document.getElementById('start-scan-btn').addEventListener('click', async () => {
+  await loadFaceModels();
+  await startVideo('video');
+  const detection = await faceapi
+    .detectSingleFace(document.getElementById('video'), new faceapi.TinyFaceDetectorOptions())
+    .withFaceLandmarks().withFaceDescriptor();
+  if (!detection) {
+    document.getElementById('scan-feedback').textContent = "Face not detected. Try again.";
+    return;
+  }
+  localStorage.setItem('auraFaceDescriptor', JSON.stringify(detection.descriptor));
+  showScreen('origin-story-screen');
+  startStory();
+});
 
 // 2. Origin Story
 const storyLines = [
@@ -63,23 +68,8 @@ document.getElementById('save-customization-btn').addEventListener('click', () =
   const style = document.getElementById('clothingStyle').value;
   localStorage.setItem('auraSkin', skin);
   localStorage.setItem('auraClothing', style);
+  document.getElementById('aura-preview').style.background = skin;
   showScreen('home-builder-screen');
 });
 
-// 5. Home Builder
-const canvas = document.getElementById('homeCanvas');
-const ctx = canvas.getContext('2d');
-canvas.width = 800;
-canvas.height = 400;
-ctx.fillStyle = '#4b8b3b';
-ctx.fillRect(0, 200, canvas.width, 200);
-
-document.getElementById('place-home-item-btn').addEventListener('click', () => {
-  const item = document.getElementById('homeItem').value;
-  ctx.fillStyle = '#fff';
-  ctx.font = '24px sans-serif';
-  ctx.fillText(item, Math.random() * 700, Math.random() * 350);
-});
-
-document.getElementById('finish-home-btn').addEventListener('click', async () => {
- 
+// 5. Home
