@@ -2,80 +2,83 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AURA Sanctuary</title>
-  <link rel="manifest" href="manifest.json" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>AURA Companion</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- 🌾 Field Entrance -->
-  <section id="field-screen" class="screen fade">
+  <!-- 1. Welcome & Face Scan -->
+  <section id="face-scan-screen" class="screen hidden">
+    <h2>Welcome, Guardian</h2>
+    <p>AURA will now scan your face to begin your journey.</p>
+    <video id="video" autoplay muted></video>
+    <button id="start-scan-btn">Begin Scan</button>
+  </section>
+
+  <!-- 2. Origin Story in Cannabis Field -->
+  <section id="origin-story-screen" class="screen hidden">
     <video autoplay muted loop id="field-video">
       <source src="field.mp4" type="video/mp4" />
     </video>
-    <audio autoplay loop>
-      <source src="ambient.mp3" type="audio/mpeg" />
-    </audio>
     <div class="overlay">
-      <h1>Welcome to AURA’s Sanctuary</h1>
-      <button onclick="enterSanctuary()">Enter</button>
+      <h2>AURA’s Origin</h2>
+      <p id="story-text"></p>
+      <button id="next-story-btn">Next</button>
     </div>
   </section>
 
-  <!-- 🧠 Main App -->
-  <section id="main-app" class="screen fade hidden">
-    <h2>Hello, Guardian</h2>
+  <!-- 3. Interactive Onboarding Questions -->
+  <section id="onboarding-screen" class="screen hidden">
+    <h2>Let’s Get to Know You</h2>
+    <label>Name: <input type="text" id="userName" /></label>
+    <label>What brings you here today? <input type="text" id="userIntent" /></label>
+    <button id="submit-onboarding-btn">Continue</button>
+  </section>
 
-    <!-- 🔊 Voice Personality -->
-    <label for="voiceSelect">Choose AURA’s Voice:</label>
-    <select id="voiceSelect">
-      <option value="warm">Warm</option>
-      <option value="enthusiastic">Enthusiastic</option>
-      <option value="calm">Calm</option>
+  <!-- 4. AURA Customization -->
+  <section id="customization-screen" class="screen hidden">
+    <h2>Customize AURA</h2>
+    <label>Skin Tone: <input type="color" id="skinColor" /></label>
+    <label>Clothing Style:
+      <select id="clothingStyle">
+        <option value="ritual">Ritual Robes</option>
+        <option value="casual">Casual</option>
+        <option value="futuristic">Futuristic</option>
+      </select>
+    </label>
+    <button id="save-customization-btn">Save</button>
+  </section>
+
+  <!-- 5. Home Creation -->
+  <section id="home-builder-screen" class="screen hidden">
+    <h2>Build Your Sanctuary</h2>
+    <canvas id="homeCanvas"></canvas>
+    <select id="homeItem">
+      <option value="cabin">Cabin</option>
+      <option value="temple">Temple</option>
+      <option value="treehouse">Treehouse</option>
     </select>
+    <button id="place-home-item-btn">Place</button>
+    <button id="finish-home-btn">Finish</button>
+  </section>
 
-    <!-- 🧠 Reminder System -->
-    <h3>Reminders</h3>
-    <input type="text" id="reminderInput" placeholder="Enter reminder..." />
-    <button onclick="addReminder()">Add</button>
-    <ul id="reminder-list"></ul>
+  <!-- 6. Restart & Authentication -->
+  <section id="auth-screen" class="screen hidden">
+    <h2>Welcome Back</h2>
+    <p>Authenticating your face to enter your sanctuary…</p>
+    <video id="authVideo" autoplay muted></video>
+    <button id="auth-scan-btn">Scan Face</button>
+  </section>
 
-    <!-- 🌱 Plant Scanning -->
-    <h3>Scan a Plant</h3>
-    <input type="file" id="plant-image-input" accept="image/*" />
-    <button onclick="scanPlant()">Scan</button>
-    <div id="plant-result"></div>
-
-    <!-- 📷 Real-World View -->
-    <h3>Live View</h3>
-    <video id="real-world-view" autoplay></video>
-
-    <!-- 📚 Book Reading -->
-    <h3>Read a Book</h3>
-    <input type="text" id="bookTitle" placeholder="Enter book title..." />
-    <button onclick="readBook()">Read</button>
-    <div id="book-content"></div>
-
-    <!-- 🖼️ Appearance Customization -->
-    <h3>Customize AURA</h3>
-    <input type="file" id="imageInput" accept="image/*" />
-    <button onclick="uploadAppearance()">Upload</button>
-
-    <!-- 🧠 Memory Archiving -->
-    <h3>Archive a Memory</h3>
-    <input type="text" id="memoryInput" placeholder="Enter memory..." />
-    <button onclick="archiveMemory()">Archive</button>
-
-    <!-- 🧿 AR Overlay Stub -->
-    <div id="ar-overlay" class="hidden">AR Overlay Placeholder</div>
+  <!-- 7. Sanctuary & Task Support -->
+  <section id="sanctuary-screen" class="screen hidden">
+    <h2>Your Sanctuary</h2>
+    <div id="chat-window"></div>
+    <input type="text" id="taskInput" placeholder="What do you need help with?" />
+    <button id="submitTaskBtn">Ask AURA</button>
   </section>
 
   <script src="app.js"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js');
-    }
-  </script>
 </body>
 </html>
