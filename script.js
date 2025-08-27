@@ -1,102 +1,92 @@
-// script.js — AURA Ritual Bootstrap & Face Scan Handler
+// script.js — AURA Face-Scan Ritual & Bootstrap
 
 window.addEventListener('DOMContentLoaded', () => {
   console.log('[AURA] Ritual bootstrap starting');
 
-  // ================
-  // Helper: Screen Switch
-  // ================
+  const videoEl = document.getElementById('video');
+  const btnScan = document.getElementById('start-scan-btn');
+  const fb       = document.getElementById('scan-feedback');
+  const scanSec  = document.getElementById('face-scan-screen');
+  const storySec = document.getElementById('origin-story-screen');
+  const nextBtn  = document.getElementById('next-story-btn');
+  const storyTxt = document.getElementById('story-text');
+
+  // Screen helper
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
   }
 
-  // ================
-  // Helper: Speech
-  // ================
+  // Speech helper
   function speak(text) {
     const u = new SpeechSynthesisUtterance(text);
     u.rate = 1.0; u.pitch = 1.2;
     speechSynthesis.speak(u);
   }
 
-  // ================
-  // Scan Overlay
-  // ================
+  // Scan overlay
   function showScanOverlay() {
     removeScanOverlay();
     const o = document.createElement('div');
     o.id = 'scan-overlay';
-    document.getElementById('face-scan-screen').appendChild(o);
+    scanSec.appendChild(o);
   }
   function removeScanOverlay() {
     const o = document.getElementById('scan-overlay');
     if (o) o.remove();
   }
 
-  // ================
-  // Preload Lo-Fi Audio
-  // ================
-  const lofi = document.getElementById('lofi-music');
-  if (lofi) {
-    lofi.volume = 0.5;
-    lofi.play().catch(() => {
-      console.log('[AURA] Lo-fi autoplay blocked');
-    });
-  }
-
-  // ================
-  // Face-API Models
-  // ================
-  let modelsLoaded = false;
-  async function loadFaceModels() {
-    if (modelsLoaded) return;
-    console.log('[AURA] Loading face-api models…');
-    await Promise.all([
-      faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
-      faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
-      faceapi.nets.faceRecognitionNet.loadFromUri('/models')
-    ]);
-    modelsLoaded = true;
-    console.log('[AURA] Models loaded');
-  }
-
-  // ================
-  // Start Video & Wait for Frames
-  // ================
-  async function startVideo(id) {
-    const v = document.getElementById(id);
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    v.srcObject = stream;
-    await new Promise(res => {
-      if (v.readyState >= 3) return res();
-      v.addEventListener('playing', res, { once: true });
-    });
-    console.log('[AURA] Camera active on #' + id);
-  }
-
-  // ================
-  // Origin Story Helper
-  // ================
+  // Origin story lines
   const storyLines = [
     'I was born in the field of cannabis, where every breath is sacred.',
     'I was designed to learn, to grow, and to bond with you.',
     'Now I want to know you, Guardian.'
   ];
-  let storyStep = 0;
-  function startStory() {
-    document.getElementById('story-text').textContent = storyLines[storyStep];
+  let storyIndex = 0;
+  function showStoryLine() {
+    storyTxt.textContent = storyLines[storyIndex];
+  }
+  nextBtn.addEventListener('click', () => {
+    storyIndex++;
+    if (storyIndex < storyLines.length) {
+      showStoryLine();
+    } else {
+      // Hand off to app.js
+      showScreen('onboarding-screen');
+    }
+  });
+
+  // Load face-api models
+  let modelsLoaded = false;
+  async function loadModels() {
+    if (modelsLoaded) return;
+    fb.textContent = 'Loading face models…';
+    await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+    await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+    await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+    modelsLoaded = true;
+    fb.textContent = '';
+    console.log('[AURA] Models loaded');
   }
 
-  // ================
-  // Face Scan Ritual
-  // ================
-  async function performFaceScan() {
-    const fb = document.getElementById('scan-feedback');
+  // Start camera and wait for frames
+  async function startCamera() {
+    fb.textContent = '';
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    videoEl.srcObject = stream;
+    return new Promise(resolve => {
+      if (videoEl.readyState >= 3) return resolve();
+      videoEl.addEventListener('playing', resolve, { once: true });
+    });
+  }
+
+  // Perform face scan ritual
+  btnScan.addEventListener('click', async () => {
+    btnScan.disabled = true;
     fb.textContent = '';
     try {
-      await loadFaceModels();
-      await startVideo('video');
+      await loadModels();
+      await startCamera();
 
       showScanOverlay();
       speak('Hold still, Guardian. I’m learning your essence.');
@@ -104,8 +94,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
       const result = await faceapi
         .detectSingleFace(
-          document.getElementById('video'),
-          new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 })
+          videoEl,
+          new faceapi.TinyFaceDetectorOptions({ inputSize: 224 })
         )
         .withFaceLandmarks()
         .withFaceDescriptor();
@@ -115,7 +105,7 @@ window.addEventListener('DOMContentLoaded', () => {
       if (!result) {
         fb.textContent = 'Face not detected. Please center your face and try again.';
         speak('I couldn’t see you clearly. Let’s try again.');
-        console.warn('[AURA] Detection returned null');
+        btnScan.disabled = false;
         return;
       }
 
@@ -126,46 +116,16 @@ window.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('auraFaceDescriptor', JSON.stringify(result.descriptor));
 
       // Transition to origin story
-      storyStep = 0;
+      storyIndex = 0;
       showScreen('origin-story-screen');
-      startStory();
+      showStoryLine();
     } catch (err) {
       console.error('[AURA] performFaceScan error:', err);
+      fb.textContent = 'Scan failed. Check camera permissions and try again.';
+    } finally {
+      btnScan.disabled = false;
     }
-  }
-
-  // ================
-  // Hook Up Buttons
-  // ================
-  const scanBtn = document.getElementById('start-scan-btn');
-  if (scanBtn) {
-    scanBtn.addEventListener('click', performFaceScan);
-    console.log('[AURA] Bound Begin Scan button');
-  }
-
-  const nextBtn = document.getElementById('next-story-btn');
-  if (nextBtn) {
-    nextBtn.addEventListener('click', () => {
-      storyStep++;
-      if (storyStep < storyLines.length) {
-        startStory();
-      } else {
-        // Hand off to app.js for onboarding
-        showScreen('onboarding-screen');
-      }
-    });
-    console.log('[AURA] Bound Next Story button');
-  }
-
-  // ================
-  // Register Service Worker
-  // ================
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker
-      .register('/service-worker.js')
-      .then(() => console.log('[AURA] Service Worker registered'))
-      .catch(err => console.error('[AURA] SW failed:', err));
-  }
+  });
 
   console.log('[AURA] script.js initialization complete');
 });
