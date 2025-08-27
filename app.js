@@ -5,10 +5,27 @@ function showScreen(id) {
 
 // 1. Face Scan
 document.getElementById('start-scan-btn').addEventListener('click', async () => {
+  await startVideo('video');
+  await loadFaceModels();
+  const detection = await faceapi
+    .detectSingleFace(document.getElementById('video'), new faceapi.TinyFaceDetectorOptions())
+    .withFaceLandmarks().withFaceDescriptor();
+  if (!detection) return alert('Face not detected.');
+  localStorage.setItem('auraFaceDescriptor', JSON.stringify(detection.descriptor));
   showScreen('origin-story-screen');
-  startVideo('video');
   startStory();
 });
+
+async function loadFaceModels() {
+  await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+  await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+  await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+}
+
+async function startVideo(id) {
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  document.getElementById(id).srcObject = stream;
+}
 
 // 2. Origin Story
 const storyLines = [
@@ -31,7 +48,7 @@ document.getElementById('next-story-btn').addEventListener('click', () => {
   }
 });
 
-// 3. Onboarding Questions
+// 3. Onboarding
 document.getElementById('submit-onboarding-btn').addEventListener('click', () => {
   const name = document.getElementById('userName').value;
   const intent = document.getElementById('userIntent').value;
@@ -54,6 +71,8 @@ const canvas = document.getElementById('homeCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = 800;
 canvas.height = 400;
+ctx.fillStyle = '#4b8b3b';
+ctx.fillRect(0, 200, canvas.width, 200);
 
 document.getElementById('place-home-item-btn').addEventListener('click', () => {
   const item = document.getElementById('homeItem').value;
@@ -62,27 +81,5 @@ document.getElementById('place-home-item-btn').addEventListener('click', () => {
   ctx.fillText(item, Math.random() * 700, Math.random() * 350);
 });
 
-document.getElementById('finish-home-btn').addEventListener('click', () => {
-  showScreen('auth-screen');
-  startVideo('authVideo');
-});
-
-// 6. Authentication
-document.getElementById('auth-scan-btn').addEventListener('click', () => {
-  // Simulate face match
-  setTimeout(() => {
-    showScreen('sanctuary-screen');
-    greetUser();
-  }, 1500);
-});
-
-// 7. Sanctuary & Task Support
-function greetUser() {
-  const name = localStorage.getItem('auraUserName') || 'Guardian';
-  const chat = document.getElementById('chat-window');
-  chat.innerHTML = `<p>AURA: Welcome home, ${name}. What shall we do today?</p>`;
-}
-
-document.getElementById('submitTaskBtn').addEventListener('click', () => {
-  const task = document.getElementById('taskInput').value;
-  const chat = document.get
+document.getElementById('finish-home-btn').addEventListener('click', async () => {
+ 
